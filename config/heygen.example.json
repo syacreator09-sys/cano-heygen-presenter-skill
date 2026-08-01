@@ -1,0 +1,14 @@
+{
+  "version":"1.0",
+  "runtimeDir":".runtime",
+  "apiBaseUrl":"https://api.heygen.com",
+  "apiKeyEnv":"HEYGEN_API_KEY",
+  "avatarIdEnv":"HEYGEN_AVATAR_ID",
+  "voiceIdEnv":"HEYGEN_VOICE_ID",
+  "locale":"es-MX",
+  "speed":1,
+  "creditsPerMinute":1,
+  "maxEstimatedCreditsPerJob":2,
+  "polling":{"intervalMs":5000,"timeoutMs":900000,"maxAttempts":3},
+  "downloadCompletedVideos":true
+}

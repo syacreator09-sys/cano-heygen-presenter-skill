@@ -1,13 +1,45 @@
-import { mkdir, writeFile } from 'node:fs/promises'; import path from 'node:path';
-const API='https://api.heygen.com';
-export async function renderLive(request,profile,outDir,{apiKey=process.env.HEYGEN_API_KEY}={}){
- if(!apiKey)throw new Error('HEYGEN_API_KEY is required for live mode');
- const avatarId=process.env[profile.avatarIdEnv]; const voiceId=process.env[profile.voiceIdEnv];
- if(!avatarId)throw new Error(`${profile.avatarIdEnv} is required`); if(!voiceId)throw new Error(`${profile.voiceIdEnv} is required`);
- await mkdir(outDir,{recursive:true}); const results=[];
- for(const segment of request.segments){
-  const response=await fetch(`${API}/v2/video/generate`,{method:'POST',headers:{'x-api-key':apiKey,'content-type':'application/json'},body:JSON.stringify({video_inputs:[{character:{type:'avatar',avatar_id:avatarId},voice:{type:'text',voice_id:voiceId,input_text:segment.script}}],dimension:request.aspectRatio==='9:16'?{width:1080,height:1920}:{width:1920,height:1080}})});
-  if(!response.ok)throw new Error(`HeyGen generate failed ${response.status}: ${await response.text()}`); const body=await response.json(); results.push({id:segment.id,videoId:body?.data?.video_id,status:'submitted'});
- }
- const manifest={version:'1.0',projectId:request.projectId,mode:'live',status:'SUBMITTED',segments:results}; await writeFile(path.join(outDir,'presenter-manifest.json'),JSON.stringify(manifest,null,2)); return manifest;
+import { mkdir, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import { downloadVideo, submitVideo, waitForVideo } from './provider.js';
+
+export async function renderLive(request, profile, outDir, { config, apiKey = process.env[config.apiKeyEnv], fetchImpl = fetch, sleep } = {}) {
+  if (!config) throw new Error('HeyGen local config is required for live mode');
+  if (!apiKey) throw new Error(`${config.apiKeyEnv} is required for live mode`);
+  await mkdir(outDir, { recursive: true });
+  const results = [];
+
+  for (const segment of request.segments) {
+    let lastError = null;
+    for (let attempt = 1; attempt <= config.polling.maxAttempts; attempt += 1) {
+      try {
+        const submitted = await submitVideo({ segment, request, profile, config, apiKey, fetchImpl });
+        const completed = await waitForVideo(submitted.videoId, config, { apiKey, fetchImpl, sleep });
+        let asset = null;
+        let bytes = null;
+        if (config.downloadCompletedVideos) {
+          const videoUrl = completed.video_url ?? completed.videoUrl;
+          if (!videoUrl) throw new Error('completed HeyGen status did not include video_url');
+          const downloaded = await downloadVideo(videoUrl, path.join(outDir, `${segment.id}.mp4`), { fetchImpl });
+          asset = path.basename(downloaded.path);
+          bytes = downloaded.bytes;
+        }
+        results.push({ id: segment.id, purpose: segment.purpose, videoId: submitted.videoId, status: 'completed', asset, bytes, provider: completed });
+        lastError = null;
+        break;
+      } catch (error) {
+        lastError = error;
+        if (attempt < config.polling.maxAttempts) await (sleep ?? ((ms) => new Promise((resolve) => setTimeout(resolve, ms))))(Math.min(30000, attempt * 5000));
+      }
+    }
+    if (lastError) {
+      results.push({ id: segment.id, purpose: segment.purpose, status: 'failed', error: lastError.message });
+      break;
+    }
+  }
+
+  const failed = results.find((item) => item.status === 'failed');
+  const manifest = { version: '1.1', projectId: request.projectId, mode: 'live', status: failed ? 'FAILED' : 'COMPLETED', segments: results };
+  await writeFile(path.join(outDir, 'presenter-manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
+  if (failed) throw new Error(`HeyGen segment failed (${failed.id}): ${failed.error}`);
+  return manifest;
 }
