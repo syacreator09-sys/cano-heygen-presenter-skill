@@ -1,0 +1,14 @@
+{
+  "version": "1.0",
+  "id": "example-presenter",
+  "provider": "heygen",
+  "avatarIdEnv": "HEYGEN_AVATAR_ID",
+  "voiceIdEnv": "HEYGEN_VOICE_ID",
+  "locale": "es-MX",
+  "defaultLook": "neutral",
+  "looks": {
+    "neutral": {
+      "avatarIdEnv": "HEYGEN_AVATAR_ID"
+    }
+  }
+}

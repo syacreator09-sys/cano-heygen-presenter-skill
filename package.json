@@ -1,0 +1,21 @@
+{
+  "name": "@cano/heygen-presenter-skill",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "description": "Reusable HeyGen avatar segment generator.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test",
+    "check": "node scripts/check-syntax.mjs",
+    "audit:release": "node scripts/audit-release.mjs",
+    "verify": "npm test && npm run check && npm run audit:release",
+    "doctor": "node bin/cano-heygen.js doctor"
+  },
+  "bin": {
+    "cano-heygen": "bin/cano-heygen.js"
+  }
+}
