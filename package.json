@@ -1,21 +1,23 @@
 {
   "name": "@cano/heygen-presenter-skill",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": false,
   "type": "module",
-  "description": "Reusable HeyGen avatar segment generator.",
+  "description": "Clone-ready segmented HeyGen presenter generation with guided setup, cost gates, polling and downloads.",
   "license": "MIT",
-  "engines": {
-    "node": ">=20"
-  },
+  "engines": {"node": ">=20"},
+  "keywords": ["heygen", "avatar", "digital-twin", "tutorial", "claude-code", "codex"],
+  "repository": {"type":"git","url":"https://github.com/syacreator09-sys/cano-heygen-presenter-skill.git"},
   "scripts": {
     "test": "node --test",
     "check": "node scripts/check-syntax.mjs",
     "audit:release": "node scripts/audit-release.mjs",
     "verify": "npm test && npm run check && npm run audit:release",
-    "doctor": "node bin/cano-heygen.js doctor"
+    "doctor": "node bin/cano-heygen.js doctor",
+    "init": "node bin/cano-heygen.js init",
+    "smoke": "node bin/cano-heygen.js render examples/cano-presenter.request.json --mock",
+    "prepublishOnly": "npm run verify"
   },
-  "bin": {
-    "cano-heygen": "bin/cano-heygen.js"
-  }
+  "bin": {"cano-heygen":"bin/cano-heygen.js"},
+  "files": ["bin", "src", "schemas", "profiles", "scripts", "docs", "examples", ".env.example", "SKILL.md", "AGENTS.md", "CLAUDE.md", "SECURITY.md", "PRIVACY.md", "USAGE_POLICY.md", "BRAND_AND_IDENTITY.md", "THIRD_PARTY_NOTICES.md", "LICENSE", "README.md"]
 }
