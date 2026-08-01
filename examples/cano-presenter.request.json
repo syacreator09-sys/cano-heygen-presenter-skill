@@ -1,0 +1,19 @@
+{
+  "version": "1.0",
+  "projectId": "cano-presenter-demo",
+  "profile": "profiles/example.profile.json",
+  "aspectRatio": "9:16",
+  "resolution": "1080p",
+  "segments": [
+    {
+      "id": "hook",
+      "purpose": "hook",
+      "script": "Esta imagen parece una fotografía profesional, pero fue generada con inteligencia artificial."
+    },
+    {
+      "id": "cta",
+      "purpose": "cta",
+      "script": "Guarda este tutorial y comenta PROMPT para recibir la estructura completa."
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+export function estimateCost(request,{creditsPerMinute=1}={}){const words=request.segments.reduce((n,s)=>n+s.script.trim().split(/\s+/).length,0);const seconds=Math.max(1,Math.ceil(words/2.5));return{estimatedSeconds:seconds,estimatedCredits:Number((seconds/60*creditsPerMinute).toFixed(3)),assumption:{wordsPerSecond:2.5,creditsPerMinute}};}
